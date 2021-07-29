@@ -25,9 +25,9 @@ final SHA3Digest sha3digest = SHA3Digest(_shaBytes * 8);
 
 /// Signatures used to sign Ethereum transactions and messages.
 class ECDSASignature extends Equatable {
-  final BigInt r;
-  final BigInt s;
-  final int v;
+  BigInt r;
+  BigInt s;
+  int v;
 
   ECDSASignature(this.r, this.s, this.v) : super([r, s, v]);
 }
