@@ -11,11 +11,11 @@ dependencies:
   meta: ^1.1.6
   convert: ^2.1.1
   quiver: '>=2.0.0 <3.0.0'
-  pointycastle: ^1.0.1
+  pointycastle: ^3.0.1
   buffer: ^1.0.6
   equatable: ^0.2.3
   collection: ^1.14.11
-  json_schema: ^2.2.0
+  json_schema: ^3.0.0
   json_annotation: ^3.0.0
 
 dev_dependencies:
