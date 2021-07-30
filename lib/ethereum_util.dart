@@ -12,3 +12,6 @@ export './src/typed_data.dart';
 export './src/utils.dart';
 export './src/wallet.dart';
 export './src/object.dart';
+export './src/transaction.dart';
+export './src/common.dart';
+export './src/chain.dart';
