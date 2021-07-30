@@ -132,3 +132,33 @@ _baToJSON(ba) {
     return result;
   }
 }
+
+  BigInt readBytes(Uint8List bytes) {
+    BigInt read(int start, int end) {
+      if (end - start <= 4) {
+        int result = 0;
+        for (int i = end - 1; i >= start; i--) {
+          result = result * 256 + bytes[i];
+        }
+        return new BigInt.from(result);
+      }
+      int mid = start + ((end - start) >> 1);
+      var result = read(start, mid) +
+          read(mid, end) * (BigInt.one << ((mid - start) * 8));
+      return result;
+    }
+
+    return read(0, bytes.length);
+  }
+
+  Uint8List writeBigInt(BigInt number) {
+    // Not handling negative numbers. Decide how you want to do that.
+    int bytes = (number.bitLength + 7) >> 3;
+    var b256 = new BigInt.from(256);
+    var result = new Uint8List(bytes);
+    for (int i = 0; i < bytes; i++) {
+      result[i] = number.remainder(b256).toInt();
+      number = number >> 8;
+    }
+    return result;
+  }

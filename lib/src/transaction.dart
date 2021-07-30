@@ -2,12 +2,36 @@ import 'dart:typed_data';
 
 import 'package:ethereum_util/ethereum_util.dart';
 import 'package:ethereum_util/src/signature.dart' as signature;
+import 'package:ethereum_util/src/common.dart';
 
 // secp256k1n/2
 final BigInt N_DIV_2 = BigInt.parse(
   '7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0',
   radix: 16,
 );
+
+class TransactionOptions {
+  /**
+   * A Common object defining the chain and the hardfork a transaction belongs to.
+   */
+  Common common;
+
+  /**
+   * The chain of the transaction, default: 'mainnet'
+   */
+  dynamic chain;
+
+  /**
+   * The hardfork of the transaction, default: 'petersburg'
+   */
+  String hardfork;
+
+  TransactionOptions({
+    this.common,
+    this.chain,
+    this.hardfork,
+  });
+}
 
 /**
  * An Ethereum transaction.
@@ -19,23 +43,25 @@ class Transaction {
   final Uint8List gasPrice;
   final Uint8List to;
   final Uint8List value;
-  final Uint8List data;
+  final dynamic data;
+  final TransactionOptions opts;
 
-   Uint8List r;
-   Uint8List s;
+  Uint8List r;
+  Uint8List s;
   Uint8List _v;
   Uint8List get v => this._v;
   set v(nv) {
-        if (nv != null) {
-          this._validateV(toBuffer(v));
-        }
-        this._v = nv;
+    if (nv != null) {
+      this._validateV(toBuffer(v));
+    }
+    this._v = nv;
   }
 
-   ECDSASignature sig;
+  ECDSASignature sig;
 
   Uint8List _senderPubKey;
   Uint8List _from;
+  Common _common;
 
   /**
    * Creates a new transaction from an object with its fields' values.
@@ -59,23 +85,23 @@ class Transaction {
     this.nonce,
     this.to,
     this.value,
+    this.opts,
   }) {
+    // instantiate Common class instance based on passed options
+    if (opts.common != null) {
+      if (opts.chain != null || opts.hardfork != null) {
+        throw new ArgumentError(
+          'Instantiation with both opts.common, and opts.chain and opts.hardfork parameter not allowed!',
+        );
+      }
 
-        // instantiate Common class instance based on passed options
-    // if (opts.common) {
-    //   if (opts.chain || opts.hardfork) {
-    //     throw new Error(
-    //       'Instantiation with both opts.common, and opts.chain and opts.hardfork parameter not allowed!',
-    //     )
-    //   }
+      this._common = opts.common;
+    } else {
+      dynamic chain = opts.chain != null ? opts.chain : 'mainnet';
+      String hardfork = opts.hardfork != null ? opts.hardfork : 'petersburg';
 
-    //   this._common = opts.common
-    // } else {
-    //   const chain = opts.chain ? opts.chain : 'mainnet'
-    //   const hardfork = opts.hardfork ? opts.hardfork : 'petersburg'
-
-    //   this._common = new Common(chain, hardfork)
-    // }
+      this._common = new Common(chain, hardfork: hardfork);
+    }
 
     // Define Properties
     final fields = [
@@ -213,17 +239,20 @@ class Transaction {
   bool verifySignature() {
     Uint8List msgHash = this.hash(false);
     // All transaction signatures whose s-value is greater than secp256k1n/2 are considered invalid.
-    // if (this._common.gteHardfork('homestead') && new BN(this.s).cmp(N_DIV_2) == 1) {
-    //   return false
-    // }
+    if (this._common.gteHardfork('homestead') &&
+        readBytes(this.s).compareTo(N_DIV_2) == 1) {
+      return false;
+    }
 
     try {
       BigInt r = fromSigned(this.r);
       BigInt s = fromSigned(this.s);
       int v = bufferToInt(this.v);
-      bool useChainIdWhileRecoveringPubKey =
-        v >= this.getChainId() * 2 + 35;// && this._common.gteHardfork('spuriousDragon');
-      this._senderPubKey = recoverPublicKeyFromSignature(ECDSASignature(r, s, v), msgHash, chainId: useChainIdWhileRecoveringPubKey ? this.getChainId() : null);
+      bool useChainIdWhileRecoveringPubKey = v >= this.getChainId() * 2 + 35 &&
+          this._common.gteHardfork('spuriousDragon');
+      this._senderPubKey = recoverPublicKeyFromSignature(
+          ECDSASignature(r, s, v), msgHash,
+          chainId: useChainIdWhileRecoveringPubKey ? this.getChainId() : null);
     } catch (e) {
       return false;
     }
@@ -249,7 +278,7 @@ class Transaction {
       sig.v += this.getChainId() * 2 + 8;
     }
 
-   this.sig = sig;
+    this.sig = sig;
   }
 
   /**
@@ -265,9 +294,9 @@ class Transaction {
       return;
     }
 
-    // if (!this._common.gteHardfork('spuriousDragon')) {
-    //   return
-    // }
+    if (!this._common.gteHardfork('spuriousDragon')) {
+      return;
+    }
 
     int vInt = bufferToInt(v);
 
@@ -275,12 +304,12 @@ class Transaction {
       return;
     }
 
-    bool isValidEIP155V =
-      vInt == this.getChainId() * 2 + 35 || vInt == this.getChainId() * 2 + 36;
+    bool isValidEIP155V = vInt == this.getChainId() * 2 + 35 ||
+        vInt == this.getChainId() * 2 + 36;
 
     if (!isValidEIP155V) {
       throw new ArgumentError(
-        'Incompatible EIP155-based V ${vInt} and chain id ${this.getChainId()}. See the second parameter of the Transaction constructor to set the chain id.');
+          'Incompatible EIP155-based V ${vInt} and chain id ${this.getChainId()}. See the second parameter of the Transaction constructor to set the chain id.');
     }
   }
 
@@ -304,7 +333,8 @@ class Transaction {
     int v = bufferToInt(this.v);
 
     var vAndChainIdMeetEIP155Conditions =
-      v == this.getChainId() * 2 + 35 || v == this.getChainId() * 2 + 36;
+        v == this.getChainId() * 2 + 35 || v == this.getChainId() * 2 + 36;
     return vAndChainIdMeetEIP155Conditions && onEIP155BlockOrLater;
   }
+
 }
