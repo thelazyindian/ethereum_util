@@ -23,7 +23,7 @@ class Common {
 
   String _hardfork;
   List<String> _supportedHardforks;
-  Chain _chainParams;
+  Map _chainParams;
 
   /**
    * @constructor
@@ -73,7 +73,7 @@ class Common {
   //   )
   // }
 
-  static Chain _getChainParams(String chain) {
+  static Map _getChainParams(String chain) {
     if (chain is int) {
       if (chainParams['names'][chain] != null) {
         return chainParams[chainParams['names'][chain]];
@@ -95,7 +95,7 @@ class Common {
    *     representation. Or, a Dictionary of chain parameters for a private network.
    * @returns The dictionary with parameters set as chain
    */
-  Chain setChain(dynamic chain) {
+  Map setChain(dynamic chain) {
     if (chain is int || chain is String) {
       this._chainParams = Common._getChainParams(chain);
     } else if (chain is Map) {
@@ -412,7 +412,7 @@ class Common {
    * @returns {Array} Array with arrays of hardforks
    */
   List hardforks() {
-    return Chain.getChain(this._chainParams).hardforks;
+    return Chain.getChain(this._chainParams)['hardforks'];
   }
 
   /**

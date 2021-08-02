@@ -67,7 +67,7 @@ class Chain {
         .toList();
   }
 
-  static getChain(Chain chain) {
+  static Map getChain(Map chain) {
     return chain;
   }
 }
