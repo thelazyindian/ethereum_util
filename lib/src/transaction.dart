@@ -1,3 +1,4 @@
+import 'dart:mirrors';
 import 'dart:typed_data';
 
 import 'package:ethereum_util/ethereum_util.dart';
@@ -63,6 +64,7 @@ class Transaction {
   Uint8List _senderPubKey;
   Uint8List _from;
   Common _common;
+  
 
   /**
    * Creates a new transaction from an object with its fields' values.
@@ -170,58 +172,37 @@ class Transaction {
     this._validateV(this.v);
   }
 
-  dynamic getSelf(String valueName) {
-    switch (valueName) {
-      case 'nonce':
-        return this.nonce;
-      case 'gasPrice':
-        return this.gasPrice;
-      case 'gasLimit':
-        return this.gasLimit;
-      case 'to':
-        return this.to;
-      case 'value':
-        return this.value;
-      case 'data':
-        return this.data;
-      case 'v':
-        return this.v;
-      case 'r':
-        return this.r;
-      case 's':
-        return this.s;
+  operator [](String name) {
+    InstanceMirror i = reflect(this);
+
+    for (DeclarationMirror declMirror in i.type.declarations.values) {
+      if (declMirror.isPrivate) {
+        continue;
+      }
+
+      Symbol simpleName = declMirror.simpleName;
+
+      // It's not possible to get the name from a symbol directly: https://github.com/dart-lang/sdk/issues/28372
+      if (simpleName.toString() == 'Symbol("${name}")') {
+        return i.getField(simpleName).reflectee;
+      }
     }
   }
 
-  void setSelf(String valueName, dynamic value) {
-    switch (valueName) {
-      case 'nonce':
-        this.nonce = value;
-        break;
-      case 'gasPrice':
-        this.gasPrice = value;
-        break;
-      case 'gasLimit':
-        this.gasLimit = value;
-        break;
-      case 'to':
-        this.to = value;
-        break;
-      case 'value':
-        this.value = value;
-        break;
-      case 'data':
-        this.data = value;
-        break;
-      case 'v':
-        this.v = value;
-        break;
-      case 'r':
-        this.r = value;
-        break;
-      case 's':
-        this.s = value;
-        break;
+  operator []=(String name, dynamic ) {
+    InstanceMirror i = reflect(this);
+
+    for (DeclarationMirror declMirror in i.type.declarations.values) {
+      if (declMirror.isPrivate) {
+        continue;
+      }
+
+      Symbol simpleName = declMirror.simpleName;
+
+      // It's not possible to get the name from a symbol directly: https://github.com/dart-lang/sdk/issues/28372
+      if (simpleName.toString() == 'Symbol("${name}")') {
+        i.setField(simpleName, value);
+      }
     }
   }
 
