@@ -14,7 +14,7 @@ import 'package:ethereum_util/src/hardforks/petersburg.dart';
 import 'package:ethereum_util/src/hardforks/spuriousDragon.dart';
 import 'package:ethereum_util/src/hardforks/tangerineWhistle.dart';
 
-const Map CHAINS = {
+const Map chainParams = {
   'names': {
     '1': 'mainnet',
     '3': 'ropsten',

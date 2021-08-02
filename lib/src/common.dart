@@ -1,8 +1,6 @@
 import 'package:ethereum_util/src/chain.dart';
 import 'package:ethereum_util/src/transaction.dart';
 
-const Map chainParams = CHAINS;
-
 class HardforkOptions {
   /** optional, only allow supported HFs (default: false) */
   final bool onlySupported;
