@@ -1,5 +1,3 @@
-import 'dart:svg';
-
 import 'package:ethereum_util/src/chain.dart';
 import 'package:ethereum_util/src/transaction.dart';
 
@@ -78,7 +76,7 @@ class Common {
   // }
 
   static Chain _getChainParams(String chain) {
-    if (chain is Number) {
+    if (chain is int) {
       if (chainParams['names'][chain] != null) {
         return chainParams[chainParams['names'][chain]];
       }
