@@ -20,9 +20,9 @@ defineProperties(Transaction self, List<Map> fields, dynamic data) {
     }
     return baToJSON(self.raw);
   };
-  self['serialize'] = () {
-    return encode(self.raw);
-  };
+  // self['serialize'] = () {
+  //   return encode(self.raw);
+  // };
 
   // i = 0;
   // fields.forEach((field) {
