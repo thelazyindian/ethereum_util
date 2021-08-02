@@ -37,15 +37,15 @@ class TransactionOptions {
  * An Ethereum transaction.
  */
 class Transaction {
-  final List<Uint8List> raw;
-  final Uint8List nonce;
-  final Uint8List gasLimit;
-  final Uint8List gasPrice;
-  final Uint8List to;
-  final Uint8List value;
-  final dynamic data;
-  final TransactionOptions opts;
+  Uint8List nonce;
+  Uint8List gasLimit;
+  Uint8List gasPrice;
+  Uint8List to;
+  Uint8List value;
+  dynamic data;
+  TransactionOptions opts;
 
+  List<Uint8List> raw;
   Uint8List r;
   Uint8List s;
   Uint8List _v;
@@ -59,6 +59,7 @@ class Transaction {
 
   ECDSASignature sig;
 
+  Function toJSON;
   Uint8List _senderPubKey;
   Uint8List _from;
   Common _common;
@@ -104,7 +105,7 @@ class Transaction {
     }
 
     // Define Properties
-    final fields = [
+    final List<Map> fields = [
       {
         'name': 'nonce',
         'length': 32,
@@ -167,6 +168,61 @@ class Transaction {
     defineProperties(this, fields, this.data);
 
     this._validateV(this.v);
+  }
+
+  dynamic getSelf(String valueName) {
+    switch (valueName) {
+      case 'nonce':
+        return this.nonce;
+      case 'gasPrice':
+        return this.gasPrice;
+      case 'gasLimit':
+        return this.gasLimit;
+      case 'to':
+        return this.to;
+      case 'value':
+        return this.value;
+      case 'data':
+        return this.data;
+      case 'v':
+        return this.v;
+      case 'r':
+        return this.r;
+      case 's':
+        return this.s;
+    }
+  }
+
+  void setSelf(String valueName, dynamic value) {
+    switch (valueName) {
+      case 'nonce':
+        this.nonce = value;
+        break;
+      case 'gasPrice':
+        this.gasPrice = value;
+        break;
+      case 'gasLimit':
+        this.gasLimit = value;
+        break;
+      case 'to':
+        this.to = value;
+        break;
+      case 'value':
+        this.value = value;
+        break;
+      case 'data':
+        this.data = value;
+        break;
+      case 'v':
+        this.v = value;
+        break;
+      case 'r':
+        this.r = value;
+        break;
+      case 's':
+        this.s = value;
+        break;
+    }
   }
 
   /**
@@ -336,5 +392,4 @@ class Transaction {
         v == this.getChainId() * 2 + 35 || v == this.getChainId() * 2 + 36;
     return vAndChainIdMeetEIP155Conditions && onEIP155BlockOrLater;
   }
-
 }
