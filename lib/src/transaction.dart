@@ -14,19 +14,19 @@ class TransactionOptions {
   /**
    * A Common object defining the chain and the hardfork a transaction belongs to.
    */
-  Common common;
+  final Common common;
 
   /**
    * The chain of the transaction, default: 'mainnet'
    */
-  dynamic chain;
+  final dynamic chain;
 
   /**
    * The hardfork of the transaction, default: 'petersburg'
    */
-  String hardfork;
+  final String hardfork;
 
-  TransactionOptions({
+  const TransactionOptions({
     this.common,
     this.chain,
     this.hardfork,
@@ -85,7 +85,7 @@ class Transaction {
     this.nonce,
     this.to,
     this.value,
-    this.opts,
+    this.opts = const TransactionOptions(),
   }) {
     // instantiate Common class instance based on passed options
     if (opts.common != null) {
