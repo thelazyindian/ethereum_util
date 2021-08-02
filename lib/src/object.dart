@@ -71,12 +71,12 @@ defineProperties(Transaction self, List<Map> fields, dynamic data) {
 
   fields.forEach((field) {
     _fields.add(field['name']);
-    if (field['default']) {
+    if (field['default'] != null) {
       self[field['name']] = field['default'];
     }
   });
   // if the constuctor is passed data
-  if (data) {
+  if (data != null) {
     if (data is String) {
       data = Uint8List.fromList(toBuffer(stripHexPrefix(data)));
     }
