@@ -189,10 +189,14 @@ class Transaction {
 
   setter(v, int i) {
     v = toBuffer(v);
-    if (bufferToHex(v) == '00' && !fields[i]['allowZero']) {
+    if (bufferToHex(v) == '00' &&
+        fields[i]['allowZero'] != null &&
+        !fields[i]['allowZero']) {
       v = Uint8List(0);
     }
-    if (fields[i]['allowLess'] && fields[i].length > 0) {
+    if (fields[i]['allowLess'] != null &&
+        fields[i]['allowLess'] &&
+        fields[i].length > 0) {
       v = stripZeros(v);
       assert(
           fields[i].length >= v.length,
@@ -201,7 +205,9 @@ class Transaction {
               " must not have more " +
               fields[i].length.toString() +
               " bytes");
-    } else if (!(fields[i]['allowZero'] && v.length == 0) &&
+    } else if (!(fields[i]['allowZero'] != null &&
+            fields[i]['allowZero'] &&
+            v.length == 0) &&
         fields[i].length > 0) {
       assert(
           fields[i].length == v.length,
