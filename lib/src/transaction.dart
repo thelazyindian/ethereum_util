@@ -38,6 +38,8 @@ class TransactionOptions {
  * An Ethereum transaction.
  */
 class Transaction {
+  final Uint8List dataValue;
+
   Uint8List get nonce => this.getter(0);
   set nonce(v) => this.setter(v, 0);
 
@@ -98,8 +100,10 @@ class Transaction {
    */
   Transaction({
     this.raw,
+    this.dataValue,
     this.opts = const TransactionOptions(),
   }) {
+    this.data = this.dataValue;
     // instantiate Common class instance based on passed options
     if (opts.common != null) {
       if (opts.chain != null || opts.hardfork != null) {
