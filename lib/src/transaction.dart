@@ -196,25 +196,25 @@ class Transaction {
     }
     if (fields[i]['allowLess'] != null &&
         fields[i]['allowLess'] &&
-        fields[i].length > 0) {
+        fields[i]['length'] > 0) {
       v = stripZeros(v);
       assert(
-          fields[i].length >= v.length,
+          fields[i]['length'] >= v.length,
           "The field " +
               fields[i]['name'] +
               " must not have more " +
-              fields[i].length.toString() +
+              fields[i]['length'].toString() +
               " bytes");
     } else if (!(fields[i]['allowZero'] != null &&
             fields[i]['allowZero'] &&
             v.length == 0) &&
-        fields[i].length > 0) {
+        fields[i]['length'] > 0) {
       assert(
-          fields[i].length == v.length,
+          fields[i]['length'] == v.length,
           "The field " +
               fields[i]['name'] +
               " must have byte length of " +
-              fields[i].length.toString());
+              fields[i]['length'].toString());
     }
     this.raw[i] = v;
   }
