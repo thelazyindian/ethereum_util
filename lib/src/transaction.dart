@@ -196,7 +196,7 @@ class Transaction {
     }
     if (fields[i]['allowLess'] != null &&
         fields[i]['allowLess'] &&
-        fields[i]['length'] > 0) {
+        (fields[i]['length'] != null && fields[i]['length'] > 0)) {
       v = stripZeros(v);
       assert(
           fields[i]['length'] >= v.length,
@@ -208,7 +208,7 @@ class Transaction {
     } else if (!(fields[i]['allowZero'] != null &&
             fields[i]['allowZero'] &&
             v.length == 0) &&
-        fields[i]['length'] > 0) {
+        (fields[i]['length'] != null && fields[i]['length'] > 0)) {
       assert(
           fields[i]['length'] == v.length,
           "The field " +
