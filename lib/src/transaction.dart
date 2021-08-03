@@ -77,7 +77,7 @@ class Transaction {
   Uint8List get from => this.getSenderAddress();
 
   TransactionOptions opts;
-  List<Uint8List> raw;
+  List<Uint8List> raw = [];
   ECDSASignature sig;
   Function toJSON;
 
