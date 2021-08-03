@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:ethereum_util/ethereum_util.dart';
 import 'package:ethereum_util/src/signature.dart' as signature;
 import 'package:ethereum_util/src/common.dart';
+import 'package:ethereum_util/src/object.dart';
 
 // secp256k1n/2
 final BigInt N_DIV_2 = BigInt.parse(
@@ -37,17 +38,24 @@ class TransactionOptions {
  * An Ethereum transaction.
  */
 class Transaction {
-  Uint8List nonce;
-  Uint8List gasLimit;
-  Uint8List gasPrice;
-  Uint8List to;
-  Uint8List value;
-  dynamic data;
-  TransactionOptions opts;
+  Uint8List get nonce => this.getter(0);
+  set nonce(v) => this.setter(v, 0);
 
-  List<Uint8List> raw;
-  Uint8List r;
-  Uint8List s;
+  Uint8List get gasPrice => this.getter(1);
+  set gasPrice(v) => this.setter(v, 1);
+
+  Uint8List get gasLimit => this.getter(2);
+  set gasLimit(v) => this.setter(v, 2);
+
+  Uint8List get to => this.getter(3);
+  set to(v) => this.setter(v, 3);
+
+  Uint8List get value => this.getter(4);
+  set value(v) => this.setter(v, 4);
+
+  Uint8List get data => this.getter(5);
+  set data(v) => this.setter(v, 5);
+
   Uint8List _v;
   Uint8List get v => this._v;
   set v(nv) {
@@ -57,11 +65,21 @@ class Transaction {
     this._v = nv;
   }
 
-  ECDSASignature sig;
+  Uint8List get r => this.getter(6);
+  set r(v) => this.setter(v, 6);
 
-  Function toJSON;
-  Uint8List _senderPubKey;
+  Uint8List get s => this.getter(7);
+  set s(v) => this.setter(v, 7);
+
   Uint8List _from;
+  Uint8List get from => this.getSenderAddress();
+
+  TransactionOptions opts;
+  List<Uint8List> raw;
+  ECDSASignature sig;
+  Function toJSON;
+
+  Uint8List _senderPubKey;
   Common _common;
 
   /**
@@ -80,12 +98,6 @@ class Transaction {
    */
   Transaction({
     this.raw,
-    this.data,
-    this.gasLimit,
-    this.gasPrice,
-    this.nonce,
-    this.to,
-    this.value,
     this.opts = const TransactionOptions(),
   }) {
     // instantiate Common class instance based on passed options
@@ -104,71 +116,12 @@ class Transaction {
       this._common = new Common(chain, hardfork: hardfork);
     }
 
-    // Define Properties
-    final List<Map> fields = [
-      {
-        'name': 'nonce',
-        'length': 32,
-        'allowLess': true,
-        'default': Uint8List(0),
-      },
-      {
-        'name': 'gasPrice',
-        'length': 32,
-        'allowLess': true,
-        'default': Uint8List(0),
-      },
-      {
-        'name': 'gasLimit',
-        'alias': 'gas',
-        'length': 32,
-        'allowLess': true,
-        'default': Uint8List(0),
-      },
-      {
-        'name': 'to',
-        'allowZero': true,
-        'length': 20,
-        'default': Uint8List(0),
-      },
-      {
-        'name': 'value',
-        'length': 32,
-        'allowLess': true,
-        'default': Uint8List(0),
-      },
-      {
-        'name': 'data',
-        'alias': 'input',
-        'allowZero': true,
-        'default': Uint8List(0),
-      },
-      {
-        'name': 'v',
-        'allowZero': true,
-        'default': Uint8List(0),
-      },
-      {
-        'name': 'r',
-        'length': 32,
-        'allowZero': true,
-        'allowLess': true,
-        'default': Uint8List(0),
-      },
-      {
-        'name': 's',
-        'length': 32,
-        'allowZero': true,
-        'allowLess': true,
-        'default': Uint8List(0),
-      },
-    ];
-
     // attached serialize
     defineProperties(this, fields, this.data);
 
     this._validateV(this.v);
   }
+
   operator [](String name) {
     switch (name) {
       case 'nonce':
@@ -224,6 +177,36 @@ class Transaction {
         break;
     }
     throw ArgumentError("Property name $name doesn't exist");
+  }
+
+  getter(int i) {
+    return this.raw[i];
+  }
+
+  setter(v, int i) {
+    v = toBuffer(v);
+    if (bufferToHex(v) == '00' && !fields[i]['allowZero']) {
+      v = Uint8List(0);
+    }
+    if (fields[i]['allowLess'] && fields[i].length > 0) {
+      v = stripZeros(v);
+      assert(
+          fields[i].length >= v.length,
+          "The field " +
+              fields[i]['name'] +
+              " must not have more " +
+              fields[i].length.toString() +
+              " bytes");
+    } else if (!(fields[i]['allowZero'] && v.length == 0) &&
+        fields[i].length > 0) {
+      assert(
+          fields[i].length == v.length,
+          "The field " +
+              fields[i]['name'] +
+              " must have byte length of " +
+              fields[i].length.toString());
+    }
+    this.raw[i] = v;
   }
 
   /**

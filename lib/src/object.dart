@@ -2,6 +2,66 @@ import 'dart:typed_data';
 
 import 'package:ethereum_util/ethereum_util.dart';
 
+// Define Properties
+final List<Map> fields = [
+  {
+    'name': 'nonce',
+    'length': 32,
+    'allowLess': true,
+    'default': Uint8List(0),
+  },
+  {
+    'name': 'gasPrice',
+    'length': 32,
+    'allowLess': true,
+    'default': Uint8List(0),
+  },
+  {
+    'name': 'gasLimit',
+    'alias': 'gas',
+    'length': 32,
+    'allowLess': true,
+    'default': Uint8List(0),
+  },
+  {
+    'name': 'to',
+    'allowZero': true,
+    'length': 20,
+    'default': Uint8List(0),
+  },
+  {
+    'name': 'value',
+    'length': 32,
+    'allowLess': true,
+    'default': Uint8List(0),
+  },
+  {
+    'name': 'data',
+    'alias': 'input',
+    'allowZero': true,
+    'default': Uint8List(0),
+  },
+  {
+    'name': 'v',
+    'allowZero': true,
+    'default': Uint8List(0),
+  },
+  {
+    'name': 'r',
+    'length': 32,
+    'allowZero': true,
+    'allowLess': true,
+    'default': Uint8List(0),
+  },
+  {
+    'name': 's',
+    'length': 32,
+    'allowZero': true,
+    'allowLess': true,
+    'default': Uint8List(0),
+  },
+];
+
 defineProperties(Transaction self, List<Map> fields, dynamic data) {
   List<String> _fields = [];
   int i = 0;
@@ -24,50 +84,13 @@ defineProperties(Transaction self, List<Map> fields, dynamic data) {
   //   return encode(self.raw);
   // };
 
-  // i = 0;
-  // fields.forEach((field) {
-  //   _fields.add(field['name']);
-
-  //   getter() {
-  //     return self.raw[i];
-  //   }
-
-  //   setter(v) {
-  //     v = toBuffer(v);
-  //     if (bufferToHex(v) == '00' && !field['allowZero']) {
-  //       v = Uint8List(0);
-  //     }
-  //     if (field['allowLess'] && field.length > 0) {
-  //       v = stripZeros(v);
-  //       assert(
-  //           field.length >= v.length,
-  //           "The field " +
-  //               field['name'] +
-  //               " must not have more " +
-  //               field.length.toString() +
-  //               " bytes");
-  //     } else if (!(field['allowZero'] && v.length == 0) && field.length > 0) {
-  //       assert(
-  //           field.length == v.length,
-  //           "The field " +
-  //               field['name'] +
-  //               " must have byte length of " +
-  //               field.length.toString());
-  //     }
-  //     self.raw[i] = v;
-  //   }
-
-  //   Object.defineProperty(self, field['name'], {
-  //     enumerable: true,
-  //     configurable: true,
-  //     get: getter,
-  //     set: setter,
-  //   });
-
-  //   if (field['default']) {
-  //     self[field['name']] = field['default'];
-  //   }
-  // });
+  i = 0;
+  fields.forEach((field) {
+    _fields.add(field['name']);
+    if (field['default']) {
+      self[field['name']] = field['default'];
+    }
+  });
 
   fields.forEach((field) {
     _fields.add(field['name']);
