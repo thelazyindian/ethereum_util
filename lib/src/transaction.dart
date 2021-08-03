@@ -38,7 +38,7 @@ class TransactionOptions {
  * An Ethereum transaction.
  */
 class Transaction {
-  final Uint8List dataValue;
+  final dynamic dataValue;
 
   Uint8List get nonce => this.getter(0);
   set nonce(v) => this.setter(v, 0);
@@ -55,7 +55,7 @@ class Transaction {
   Uint8List get value => this.getter(4);
   set value(v) => this.setter(v, 4);
 
-  Uint8List get data => this.getter(5);
+  dynamic get data => this.getter(5);
   set data(v) => this.setter(v, 5);
 
   Uint8List _v;
