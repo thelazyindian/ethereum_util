@@ -77,7 +77,7 @@ class Transaction {
   Uint8List get from => this.getSenderAddress();
 
   TransactionOptions opts;
-  List<Uint8List> raw = [];
+  List<Uint8List> raw;
   ECDSASignature sig;
   Function toJSON;
 
@@ -103,6 +103,7 @@ class Transaction {
     this.dataValue,
     this.opts = const TransactionOptions(),
   }) {
+    this.raw = this.raw ?? List.generate(8, (index) => null);
     this.data = this.dataValue;
     // instantiate Common class instance based on passed options
     if (opts.common != null) {
@@ -150,7 +151,7 @@ class Transaction {
     throw ArgumentError("Property name $name doesn't exist");
   }
 
-  operator []=(String name, dynamic) {
+  operator []=(String name, dynamic value) {
     switch (name) {
       case 'nonce':
         this.nonce = value;
@@ -179,8 +180,10 @@ class Transaction {
       case 's':
         this.s = value;
         break;
+      default:
+        throw ArgumentError("Property name $name doesn't exist");
+        break;
     }
-    throw ArgumentError("Property name $name doesn't exist");
   }
 
   getter(int i) {
@@ -256,7 +259,7 @@ class Transaction {
    * returns chain ID
    */
   int getChainId() {
-    return null; //this._common.chainId();
+    return this._common.chainId();
   }
 
   /**
@@ -328,7 +331,9 @@ class Transaction {
       sig.v += this.getChainId() * 2 + 8;
     }
 
-    this.sig = sig;
+    this.v = toBuffer(sig.v);
+    this.s = toBuffer(sig.s);
+    this.r = toBuffer(sig.r);
   }
 
   /**
@@ -368,7 +373,7 @@ class Transaction {
   }
 
   bool _implementsEIP155() {
-    var onEIP155BlockOrLater = this._common.gteHardfork('spuriousDragon');
+    bool onEIP155BlockOrLater = this._common.gteHardfork('spuriousDragon');
 
     if (!this._isSigned()) {
       // We sign with EIP155 all unsigned transactions after spuriousDragon

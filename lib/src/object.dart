@@ -65,7 +65,6 @@ final List<Map> fields = [
 defineProperties(Transaction self, List<Map> fields, dynamic data) {
   List<String> _fields = [];
   int i = 0;
-  self.raw = [];
   // attach the `toJSON`
   self.toJSON = (label) {
     if (label == null) {
@@ -87,17 +86,11 @@ defineProperties(Transaction self, List<Map> fields, dynamic data) {
   i = 0;
   fields.forEach((field) {
     _fields.add(field['name']);
-    if (field['default']) {
-      self[field['name']] = field['default'];
-    }
-  });
-
-  fields.forEach((field) {
-    _fields.add(field['name']);
     if (field['default'] != null) {
       self[field['name']] = field['default'];
     }
   });
+
   // if the constuctor is passed data
   if (data != null) {
     if (data is String) {

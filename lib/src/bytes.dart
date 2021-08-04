@@ -68,7 +68,7 @@ String unpadString(String a) {
 }
 
 /// Attempts to turn a value into a [Uint8List]. As input it supports [Uint8List], [String], [int], [null], [BigInt] method.
-Uint8List toBuffer(v) {
+Uint8List toBuffer(dynamic v) {
   if (!(v is Uint8List)) {
     if (v is List) {
       v = Uint8List.fromList(v);

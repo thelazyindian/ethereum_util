@@ -110,7 +110,7 @@ class Common {
           throw new ArgumentError('Missing required chain parameter: ${param}');
         }
       }
-      this._chainParams = Chain.fromJson(chain);
+      this._chainParams = chain;
     } else {
       throw new ArgumentError('Wrong input format');
     }
@@ -267,7 +267,7 @@ class Common {
     String hardfork2, {
     HardforkOptions opts,
   }) {
-    opts = opts != null ? opts : TransactionOptions();
+    opts = opts != null ? opts : HardforkOptions();
     bool onlyActive = opts.onlyActive == null ? false : opts.onlyActive;
     hardfork1 = this._chooseHardfork(
         hardfork: hardfork1, onlySupported: opts.onlySupported);
@@ -435,9 +435,9 @@ class Common {
    * Returns the Id of current chain
    * @returns chain Id
    */
-  // chainId(): number {
-  //   return <number>(<any>this._chainParams)['chainId']
-  // }
+  int chainId() {
+    return Chain.getChain(this._chainParams)['chainId'];
+  }
 
   /**
    * Returns the name of current chain
