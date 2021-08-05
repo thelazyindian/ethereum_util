@@ -58,20 +58,19 @@ class Transaction {
   dynamic get data => this.getter(5);
   set data(v) => this.setter(v, 5);
 
-  Uint8List _v;
-  Uint8List get v => this._v;
+  Uint8List get v => this.getter(6);
   set v(nv) {
     if (nv != null) {
-      this._validateV(toBuffer(v));
+      this._validateV(toBuffer(nv));
     }
-    this._v = nv;
+    this.setter(nv, 6);
   }
 
-  Uint8List get r => this.getter(6);
-  set r(v) => this.setter(v, 6);
+  Uint8List get r => this.getter(7);
+  set r(v) => this.setter(v, 7);
 
-  Uint8List get s => this.getter(7);
-  set s(v) => this.setter(v, 7);
+  Uint8List get s => this.getter(8);
+  set s(v) => this.setter(v, 8);
 
   Uint8List _from;
   Uint8List get from => this.getSenderAddress();
@@ -103,7 +102,7 @@ class Transaction {
     this.dataValue,
     this.opts = const TransactionOptions(),
   }) {
-    this.raw = this.raw ?? List.generate(8, (index) => null);
+    this.raw = this.raw ?? List.generate(9, (index) => null);
     this.data = this.dataValue;
     // instantiate Common class instance based on passed options
     if (opts.common != null) {
