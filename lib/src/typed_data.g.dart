@@ -8,14 +8,14 @@ part of 'typed_data.dart';
 
 TypedData _$TypedDataFromJson(Map<String, dynamic> json) {
   return TypedData(
-      types: (json['types'] as Map<String, dynamic>)?.map(
+      types: (json['types'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(
             k,
             (e as List)
                 ?.map((e) => e == null
                     ? null
                     : TypedDataField.fromJson(e as Map<String, dynamic>))
-                ?.toList()),
+                ?.toList() as List<TypedDataField>) ,
       ),
       primaryType: json['primaryType'] as String,
       domain: json['domain'] == null

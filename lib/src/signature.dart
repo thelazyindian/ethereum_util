@@ -76,7 +76,7 @@ Uint8List privateKeyToAddress(Uint8List privateKey) {
 
 /// Signs the hashed data in [message] using the given private key.
 ECDSASignature sign(Uint8List message, Uint8List privateKey,
-    {int chainId = null}) {
+    {int? chainId = null}) {
   final digest = SHA256Digest();
   final signer = ECDSASigner(null, HMac(digest, 64));
   final key = ECPrivateKey(decodeBigInt(privateKey), params);
@@ -123,7 +123,7 @@ ECDSASignature sign(Uint8List message, Uint8List privateKey,
 }
 
 bool isValidSignature(BigInt r, BigInt s, int v,
-    {bool homesteadOrLater = true, int chainId = null}) {
+    {bool homesteadOrLater = true, int? chainId = null}) {
   var SECP256K1_N_DIV_2 = decodeBigInt(hex.decode(
       '7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0'));
   var SECP256K1_N = decodeBigInt(hex.decode(
@@ -151,8 +151,8 @@ bool isValidSignature(BigInt r, BigInt s, int v,
   return true;
 }
 
-Uint8List recoverPublicKeyFromSignature(ECDSASignature sig, Uint8List message,
-    {int chainId = null}) {
+Uint8List? recoverPublicKeyFromSignature(ECDSASignature sig, Uint8List message,
+    {int? chainId = null}) {
   int recoveryId = _calculateSigRecovery(sig.v, chainId: chainId);
   if (!_isValidSigRecovery(recoveryId)) {
     throw ArgumentError("invalid signature v value");
@@ -165,7 +165,7 @@ Uint8List recoverPublicKeyFromSignature(ECDSASignature sig, Uint8List message,
   return _recoverPublicKeyFromSignature(recoveryId, sig.r, sig.s, message);
 }
 
-Uint8List _recoverPublicKeyFromSignature(
+Uint8List? _recoverPublicKeyFromSignature(
     int recId, BigInt r, BigInt s, Uint8List message) {
   final n = params.n;
   final i = BigInt.from(recId ~/ 2);
@@ -193,7 +193,7 @@ Uint8List _recoverPublicKeyFromSignature(
   return bytes.sublist(1);
 }
 
-int _calculateSigRecovery(int v, {int chainId = null}) {
+int _calculateSigRecovery(int v, {int? chainId = null}) {
   return chainId != null ? v - (2 * chainId + 35) : v - 27;
 }
 
@@ -245,7 +245,7 @@ Uint8List hashPersonalMessage(dynamic message) {
 ///
 /// Convert signature parameters into the format of `eth_sign` RPC method.
 ///
-String toRpcSig(BigInt r, BigInt s, int v, {int chainId = null}) {
+String toRpcSig(BigInt r, BigInt s, int v, {int? chainId = null}) {
   var recovery = _calculateSigRecovery(v, chainId: chainId);
   if (!_isValidSigRecovery(recovery)) {
     throw ArgumentError('Invalid signature v value');
@@ -265,7 +265,7 @@ String toRpcSig(BigInt r, BigInt s, int v, {int chainId = null}) {
 /// Convert signature format of the `eth_sign` RPC method to signature parameters
 /// NOTE: all because of a bug in geth: https://github.com/ethereum/go-ethereum/issues/2053
 ///
-ECDSASignature fromRpcSig(String sig) {
+ECDSASignature fromRpcSig(String? sig) {
   Uint8List buf = toBuffer(sig);
 
   // NOTE: with potential introduction of chainId this might need to be updated

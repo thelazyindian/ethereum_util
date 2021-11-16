@@ -18,12 +18,12 @@ class HardforkOptions {
  */
 class Common {
   final dynamic chain;
-  final String hardfork;
-  final List<String> supportedHardforks;
+  final String? hardfork;
+  final List<String>? supportedHardforks;
 
-  String _hardfork;
-  List<String> _supportedHardforks;
-  Map _chainParams;
+  late String? _hardfork;
+  late List<String>? _supportedHardforks;
+  late Map _chainParams;
 
   /**
    * @constructor
@@ -121,7 +121,7 @@ class Common {
    * Sets the hardfork to get params for
    * @param hardfork String identifier ('byzantium')
    */
-  setHardfork(String hardfork) {
+  setHardfork(String? hardfork) {
     if (!this._isSupportedHardfork(hardfork)) {
       throw new ArgumentError(
           'Hardfork ${hardfork} not set as supported in supportedHardforks');
@@ -143,7 +143,7 @@ class Common {
    * @param hardfork Hardfork given to function as a parameter
    * @returns Hardfork chosen to be used
    */
-  String _chooseHardfork({String hardfork, bool onlySupported}) {
+  String? _chooseHardfork({String? hardfork, bool? onlySupported}) {
     onlySupported = onlySupported == null ? true : onlySupported;
     if (hardfork == null) {
       if (this._hardfork == null) {
@@ -177,9 +177,9 @@ class Common {
    * @param hardfork Hardfork name
    * @returns True if hardfork is supported
    */
-  bool _isSupportedHardfork(String hardfork) {
-    if (this._supportedHardforks.length > 0) {
-      for (var supportedHf in this._supportedHardforks) {
+  bool _isSupportedHardfork(String? hardfork) {
+    if (this._supportedHardforks!.length > 0) {
+      for (var supportedHf in this._supportedHardforks!) {
         if (hardfork == supportedHf) return true;
       }
     } else {
@@ -263,9 +263,9 @@ class Common {
    * @returns True if HF1 gte HF2
    */
   bool hardforkGteHardfork(
-    String hardfork1,
+    String? hardfork1,
     String hardfork2, {
-    HardforkOptions opts,
+    HardforkOptions? opts,
   }) {
     opts = opts != null ? opts : HardforkOptions();
     bool onlyActive = opts.onlyActive == null ? false : opts.onlyActive;
@@ -295,7 +295,7 @@ class Common {
    * @param opts Hardfork options
    * @returns True if hardfork set is greater than hardfork provided
    */
-  bool gteHardfork(String hardfork, {HardforkOptions opts}) {
+  bool gteHardfork(String hardfork, {HardforkOptions? opts}) {
     return this.hardforkGteHardfork(null, hardfork, opts: opts);
   }
 
@@ -321,14 +321,13 @@ class Common {
    * @param opts Hardfork options (onlyActive unused)
    * @return Array with hardfork arrays
    */
-  List activeHardforks({int blockNumber, HardforkOptions opts}) {
+  List activeHardforks({int? blockNumber, HardforkOptions? opts}) {
     opts = opts != null ? opts : HardforkOptions();
     List activeHardforks = [];
     var hfs = this.hardforks();
     for (var hf in hfs) {
       if (hf['block'] == null) continue;
       if (blockNumber != null &&
-          blockNumber != null &&
           blockNumber < hf['block']) break;
       if (opts.onlySupported && !this._isSupportedHardfork(hf['name']))
         continue;

@@ -43,14 +43,14 @@ const List<List> hardforkChanges = [
 ];
 
 class Chain {
-  static String name;
-  static int chainId;
-  static int networkId;
-  static String comment;
-  static String url;
-  static GenesisBlock genesis;
-  static List<Hardfork> hardforks;
-  static List<BootstrapNode> bootstrapNodes;
+  static late String name;
+  static late int chainId;
+  static late int networkId;
+  static late String comment;
+  static late String url;
+  static late GenesisBlock genesis;
+  static late List<Hardfork> hardforks;
+  static late List<BootstrapNode> bootstrapNodes;
 
   static fromJson(Map json) {
     name = json['name'];
@@ -73,13 +73,13 @@ class Chain {
 }
 
 class GenesisBlock {
-  static String hash;
-  static String timestamp;
-  static int gasLimit;
-  static int difficulty;
-  static String nonce;
-  static String extraData;
-  static String stateRoot;
+  static late String hash;
+  static late String timestamp;
+  static late int gasLimit;
+  static late int difficulty;
+  static late String nonce;
+  static late String extraData;
+  static late String stateRoot;
 
   static fromJson(json) {
     hash = json['name'];
@@ -93,10 +93,10 @@ class GenesisBlock {
 }
 
 class Hardfork {
-  static String name;
-  static int block;
-  static String consensus;
-  static dynamic finality;
+  static late String name;
+  static late int block;
+  static late String consensus;
+  static late dynamic finality;
 
   static fromJson(json) {
     name = json['name'];
@@ -107,13 +107,13 @@ class Hardfork {
 }
 
 class BootstrapNode {
-  static String ip;
-  static dynamic port;
-  static String network;
-  static int chainId;
-  static String id;
-  static String location;
-  static String comment;
+  static late String ip;
+  static late dynamic port;
+  static late String network;
+  static late int chainId;
+  static late String id;
+  static late String location;
+  static late String comment;
 
   static fromJson(json) {
     ip = json['ip'];

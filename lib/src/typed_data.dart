@@ -25,7 +25,7 @@ String concatSig(Uint8List r, Uint8List s, Uint8List v) {
 }
 
 String signTypedData(Uint8List privateKey, MsgParams msgParams) {
-  var message = TypedDataUtils.sign(msgParams.data);
+  var message = TypedDataUtils.sign(msgParams.data!);
   var sig = sign(message, privateKey);
   return concatSig(toBuffer(sig.r), toBuffer(sig.s), toBuffer(sig.v));
 }
@@ -34,7 +34,7 @@ String signTypedData(Uint8List privateKey, MsgParams msgParams) {
 /// Expects the same data that were used for signing. sig is a prefixed signature.
 String recoverTypedSignature(MsgParams msgParams) {
   var publicKey = msgParams.recoverPublicKey();
-  var sender = publicKeyToAddress(publicKey);
+  var sender = publicKeyToAddress(publicKey!);
   return bufferToHex(sender);
 }
 
@@ -46,7 +46,7 @@ String _padWithZeroes(String number, int length) {
   return myString;
 }
 
-String normalize(dynamic input) {
+String? normalize(dynamic input) {
   if (input == null) {
     return null;
   }
@@ -64,25 +64,25 @@ String normalize(dynamic input) {
 }
 
 class MsgParams {
-  TypedData data;
-  String sig;
+  TypedData? data;
+  String? sig;
 
   MsgParams({this.data, this.sig});
 
-  Uint8List recoverPublicKey() {
+  Uint8List? recoverPublicKey() {
     var sigParams = fromRpcSig(sig);
     return recoverPublicKeyFromSignature(
         ECDSASignature(sigParams.r, sigParams.s, sigParams.v),
-        TypedDataUtils.sign(data));
+        TypedDataUtils.sign(data!));
   }
 }
 
 @JsonSerializable(nullable: true)
 class TypedData {
-  Map<String, List<TypedDataField>> types;
-  String primaryType;
-  EIP712Domain domain;
-  Map<String, dynamic> message;
+  Map<String, List<TypedDataField>>? types;
+  String? primaryType;
+  EIP712Domain? domain;
+  Map<String, dynamic>? message;
 
   TypedData({this.types, this.primaryType, this.domain, this.message});
 
@@ -95,8 +95,8 @@ class TypedData {
 
 @JsonSerializable(nullable: true)
 class TypedDataField {
-  String name;
-  String type;
+  String? name;
+  String? type;
 
   TypedDataField({@required this.name, @required this.type});
 
@@ -109,10 +109,10 @@ class TypedDataField {
 
 @JsonSerializable(nullable: true)
 class EIP712Domain {
-  String name;
-  String version;
-  int chainId;
-  String verifyingContract;
+  String? name;
+  String? version;
+  int? chainId;
+  String? verifyingContract;
 
   EIP712Domain({this.name, this.version, this.chainId, this.verifyingContract});
 
@@ -142,9 +142,9 @@ class TypedDataUtils {
   static Uint8List sign(TypedData typedData) {
     var parts = BytesBuffer();
     parts.add(hex.decode('1901'));
-    parts.add(hashStruct('EIP712Domain', typedData.domain, typedData.types));
+    parts.add(hashStruct('EIP712Domain', typedData.domain, typedData.types!));
     parts.add(
-        hashStruct(typedData.primaryType, typedData.message, typedData.types));
+        hashStruct(typedData.primaryType!, typedData.message, typedData.types!));
     return sha3(parts.toBytes());
   }
 
@@ -165,12 +165,12 @@ class TypedDataUtils {
       throw ArgumentError("Unsupported data type");
     }
 
-    var encodedTypes = List<String>();
+    var encodedTypes = [] as List<String>;
     encodedTypes.add('bytes32');
-    var encodedValues = List<dynamic>();
+    var encodedValues = [];
     encodedValues.add(hashType(primaryType, types));
 
-    types[primaryType].forEach((TypedDataField field) {
+    types[primaryType]!.forEach((TypedDataField field) {
       var value = data[field.name];
       if (value != null) {
         if (field.type == 'bytes') {
@@ -187,13 +187,13 @@ class TypedDataUtils {
           encodedValues.add(value);
         } else if (types[field.type] != null) {
           encodedTypes.add('bytes32');
-          value = sha3(encodeData(field.type, value, types));
+          value = sha3(encodeData(field.type!, value, types));
           encodedValues.add(value);
-        } else if (field.type.lastIndexOf(']') == field.type.length - 1) {
+        } else if (field.type!.lastIndexOf(']') == field.type!.length - 1) {
           throw new ArgumentError(
               'Arrays currently unimplemented in encodeData');
         } else {
-          encodedTypes.add(field.type);
+          encodedTypes.add(field.type!);
           encodedValues.add(value);
         }
       }
@@ -216,7 +216,7 @@ class TypedDataUtils {
       }
       result += dep +
           '(' +
-          types[dep].map((field) => field.type + ' ' + field.name).join(',') +
+          types[dep]!.map((field) => field.type! + ' ' + field.name!).join(',') +
           ')';
     });
     return result;
@@ -232,17 +232,17 @@ class TypedDataUtils {
    */
   static List<String> findTypeDependencies(
       String primaryType, Map<String, List<TypedDataField>> types,
-      {List<String> results}) {
+      {List<String>? results}) {
     if (results == null) {
-      results = List();
+      results = [];
     }
     if (results.indexOf(primaryType) >= 0 || !types.containsKey(primaryType)) {
       return results;
     }
     results.add(primaryType);
-    types[primaryType].forEach((TypedDataField field) {
-      findTypeDependencies(field.type, types, results: results).forEach((dep) {
-        if (results.indexOf(dep) == -1) {
+    types[primaryType]!.forEach((TypedDataField field) {
+      findTypeDependencies(field.type!, types, results: results).forEach((dep) {
+        if (results!.indexOf(dep) == -1) {
           results.add(dep);
         }
       });

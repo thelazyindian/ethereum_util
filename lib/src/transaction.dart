@@ -15,7 +15,7 @@ class TransactionOptions {
   /**
    * A Common object defining the chain and the hardfork a transaction belongs to.
    */
-  final Common common;
+  final Common? common;
 
   /**
    * The chain of the transaction, default: 'mainnet'
@@ -25,7 +25,7 @@ class TransactionOptions {
   /**
    * The hardfork of the transaction, default: 'petersburg'
    */
-  final String hardfork;
+  final String? hardfork;
 
   const TransactionOptions({
     this.common,
@@ -72,16 +72,16 @@ class Transaction {
   Uint8List get s => this.getter(8);
   set s(v) => this.setter(v, 8);
 
-  Uint8List _from;
+  late Uint8List _from;
   Uint8List get from => this.getSenderAddress();
 
   TransactionOptions opts;
-  List<Uint8List> raw;
-  ECDSASignature sig;
-  Function toJSON;
+  List<Uint8List?>? raw;
+  late ECDSASignature sig;
+  late Function toJSON;
 
-  Uint8List _senderPubKey;
-  Common _common;
+  late Uint8List? _senderPubKey;
+  late Common _common;
 
   /**
    * Creates a new transaction from an object with its fields' values.
@@ -112,10 +112,10 @@ class Transaction {
         );
       }
 
-      this._common = opts.common;
+      this._common = opts.common!;
     } else {
       dynamic chain = opts.chain != null ? opts.chain : 'mainnet';
-      String hardfork = opts.hardfork != null ? opts.hardfork : 'petersburg';
+      String? hardfork = opts.hardfork != null ? opts.hardfork : 'petersburg';
 
       this._common = new Common(chain, hardfork: hardfork);
     }
@@ -186,7 +186,7 @@ class Transaction {
   }
 
   getter(int i) {
-    return this.raw[i];
+    return this.raw![i];
   }
 
   setter(v, int i) {
@@ -218,7 +218,7 @@ class Transaction {
               " must have byte length of " +
               fields[i]['length'].toString());
     }
-    this.raw[i] = v;
+    this.raw![i] = v;
   }
 
   /**
@@ -239,14 +239,14 @@ class Transaction {
     } else {
       if (this._implementsEIP155()) {
         items = [
-          ...this.raw.getRange(0, 6),
+          ...this.raw!.getRange(0, 6),
           toBuffer(this.getChainId()),
           // TODO: stripping zeros should probably be a responsibility of the rlp module
           stripZeros(toBuffer(0)),
           stripZeros(toBuffer(0)),
         ];
       } else {
-        items = this.raw.getRange(0, 6);
+        items = this.raw!.getRange(0, 6);
       }
     }
 
@@ -268,15 +268,15 @@ class Transaction {
     if (this._from != null) {
       return this._from;
     }
-    Uint8List pubkey = this.getSenderPublicKey();
-    this._from = publicKeyToAddress(pubkey);
+    Uint8List? pubkey = this.getSenderPublicKey();
+    this._from = publicKeyToAddress(pubkey!);
     return this._from;
   }
 
   /**
    * returns the public key of the sender
    */
-  Uint8List getSenderPublicKey() {
+  Uint8List? getSenderPublicKey() {
     if (!this.verifySignature()) {
       throw new ArgumentError('Invalid Signature');
     }

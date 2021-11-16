@@ -4,8 +4,8 @@ import 'package:ethereum_util/src/bytes.dart';
 import 'package:ethereum_util/src/signature.dart';
 
 class Wallet {
-  Uint8List _privKey;
-  Uint8List _pubKey;
+  Uint8List? _privKey;
+  Uint8List? _pubKey;
 
   Wallet.fromPrivateKey(Uint8List key) {
     this._privKey = key;
@@ -13,10 +13,10 @@ class Wallet {
   }
 
   String getAddressString() {
-    return bufferToHex(publicKeyToAddress(_pubKey));
+    return bufferToHex(publicKeyToAddress(_pubKey!));
   }
 
-  Uint8List getPrivateKey() {
+  Uint8List? getPrivateKey() {
     return this._privKey;
   }
 }
