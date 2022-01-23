@@ -25,11 +25,14 @@ final SHA3Digest sha3digest = SHA3Digest(_shaBytes * 8);
 
 /// Signatures used to sign Ethereum transactions and messages.
 class ECDSASignature extends Equatable {
-  BigInt r;
-  BigInt s;
-  int v;
+  final BigInt r;
+  final BigInt s;
+  final int v;
 
-  ECDSASignature(this.r, this.s, this.v) : super([r, s, v]);
+  const ECDSASignature(this.r, this.s, this.v);
+
+  @override
+  List<Object> get props => [r, s, v];
 }
 
 Uint8List sha3(Uint8List input) {
@@ -39,7 +42,7 @@ Uint8List sha3(Uint8List input) {
 
 /// Generates a new private key using the random instance provided. Please make
 /// sure you're using a cryptographically secure generator.
-BigInt generateNewPrivateKey(Random random) {
+BigInt? generateNewPrivateKey(Random random) {
   final generator = ECKeyGenerator();
 
   final keyParams = ECKeyGeneratorParameters(params);
@@ -58,7 +61,7 @@ Uint8List privateKeyToPublicKey(Uint8List privateKey) {
   final p = params.G * privateKeyNum;
 
   //skip the type flag, https://github.com/ethereumjs/ethereumjs-util/blob/master/index.js#L319
-  return Uint8List.view(p.getEncoded(false).buffer, 1);
+  return Uint8List.view(p!.getEncoded(false).buffer, 1);
 }
 
 /// Constructs the Ethereum address associated with the given public key by
@@ -177,8 +180,8 @@ Uint8List? _recoverPublicKeyFromSignature(
       radix: 16);
   if (x.compareTo(prime) >= 0) return null;
 
-  final R = _decompressKey(x, (recId & 1) == 1, params.curve);
-  if (!(R * n).isInfinity) return null;
+  final R = _decompressKey(x, (recId & 1) == 1, params.curve)!;
+  if (!(R * n)!.isInfinity) return null;
 
   final e = decodeBigInt(message);
 
@@ -187,9 +190,9 @@ Uint8List? _recoverPublicKeyFromSignature(
   final srInv = (rInv * s) % n;
   final eInvrInv = (rInv * eInv) % n;
 
-  final q = (params.G * eInvrInv) + (R * srInv);
+  final q = (params.G * eInvrInv)! + (R * srInv);
 
-  final bytes = q.getEncoded(false);
+  final bytes = q!.getEncoded(false);
   return bytes.sublist(1);
 }
 
@@ -201,7 +204,7 @@ bool _isValidSigRecovery(int recoveryId) {
   return recoveryId == 0 || recoveryId == 1;
 }
 
-ECPoint _decompressKey(BigInt xBN, bool yBit, ECCurve c) {
+ECPoint? _decompressKey(BigInt xBN, bool yBit, ECCurve c) {
   List<int> x9IntegerToBytes(BigInt s, int qLength) {
     //https://github.com/bcgit/bc-java/blob/master/core/src/main/java/org/bouncycastle/asn1/x9/X9IntegerConverter.java#L45
     final bytes = encodeBigInt(s);

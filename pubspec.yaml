@@ -9,10 +9,10 @@ environment:
 
 dependencies:
   meta: ^1.1.6
-  convert: ^2.1.1
-  pointycastle: ^1.0.1
+  convert: ^3.0.0
+  pointycastle: ^3.0.1
   buffer: ^1.0.6
-  equatable: ^0.2.3
+  equatable: ^2.0.3
   collection: ^1.14.11
   json_annotation:
   quiver: ^3.0.1+1
@@ -20,5 +20,5 @@ dependencies:
 dev_dependencies:
   build_runner:
   json_serializable:
-  path: 
-  test: 
+  path:
+  test:
