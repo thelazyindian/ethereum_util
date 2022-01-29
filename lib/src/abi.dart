@@ -189,7 +189,8 @@ String elementaryName(String name) {
 
 /// Parse N from type<N>
 int parseTypeN(String type) {
-  return int.parse(RegExp(r'^\D+(\d+)$').firstMatch(type)!.group(1)!, radix: 10);
+  return int.parse(RegExp(r'^\D+(\d+)$').firstMatch(type)!.group(1)!,
+      radix: 10);
 }
 
 /// Parse N,M from type<N>x<M>
@@ -224,6 +225,103 @@ BigInt parseNumber(dynamic arg) {
   } else {
     throw new ArgumentError('Argument is not a number');
   }
+}
+
+Uint8List solidityHexValue(String type, dynamic value, int? bitsize) {
+  // pass in bitsize = null if use default bitsize
+  var size, num;
+  if (isArray(type)) {
+    var subType = type.replaceAll(RegExp(r'/\[.*?\]/'), '');
+    if (!isArray(subType)) {
+      var arraySize = parseTypeArray(type);
+      if (arraySize != 'dynamic' &&
+          arraySize != 0 &&
+          value.length > arraySize) {
+        throw Exception('Elements exceed array size: ' + arraySize);
+      }
+    }
+    var arrayValues = BytesBuffer();
+    value.forEach((v) {
+      arrayValues.add(solidityHexValue(subType, v, 256));
+    });
+    return arrayValues.toBytes();
+  } else if (type == 'bytes') {
+    return value;
+  } else if (type == 'string') {
+    var ret = BytesBuffer();
+    ret.add(utf8.encode(value));
+    return ret.toBytes();
+  } else if (type == 'bool') {
+    bitsize = bitsize ?? 8;
+    var padding = List.filled((bitsize) ~/ 4, '0').join();
+    var ret = BytesBuffer();
+    ret.add(hex.decode(value ? padding + '1' : padding + '0'));
+    return ret.toBytes();
+  } else if (type == 'address') {
+    var bytesize = 20;
+    if (bitsize != null) {
+      bytesize = bitsize ~/ 8;
+    }
+    return setLengthLeft(value, bytesize);
+  } else if (type.startsWith('bytes')) {
+    size = parseTypeN(type);
+    if (size < 1 || size > 32) {
+      throw Exception('Invalid bytes<N> width: ' + size);
+    }
+
+    return setLengthRight(value, size);
+  } else if (type.startsWith('uint')) {
+    size = parseTypeN(type);
+    if ((size % 8 != 0) || (size < 8) || (size > 256)) {
+      throw Exception('Invalid uint<N> width: ' + size);
+    }
+
+    num = parseNumber(value);
+    if (num.bitLength > size) {
+      throw Exception(
+          'Supplied uint exceeds width: ' + size + ' vs ' + num.bitLength);
+    }
+
+    bitsize = bitsize ?? size;
+    return encodeBigInt(num, length: bitsize! ~/ 8);
+  } else if (type.startsWith('int')) {
+    size = parseTypeN(type);
+    if ((size % 8 != 0) || (size < 8) || (size > 256)) {
+      throw Exception('Invalid int<N> width: ' + size);
+    }
+
+    num = parseNumber(value);
+    if (num.bitLength > size) {
+      throw Exception(
+          'Supplied int exceeds width: ' + size + ' vs ' + num.bitLength);
+    }
+
+    bitsize = bitsize ?? size;
+    return encodeBigInt(num.toUnsigned(size), length: bitsize! ~/ 8);
+  } else {
+    // FIXME: support all other types
+    throw Exception('Unsupported or invalid type: ' + type);
+  }
+}
+
+Uint8List solidityPack(List<String> types, List<dynamic> values) {
+  if (types.length != values.length) {
+    throw Exception('Number of types are not matching the values');
+  }
+
+  var ret = BytesBuffer();
+
+  for (var i = 0; i < types.length; i++) {
+    var type = elementaryName(types[i]);
+    var value = values[i];
+    ret.add(solidityHexValue(type, value, null));
+  }
+
+  return ret.toBytes();
+}
+
+Uint8List soliditySHA3(List<String> types, List<dynamic> values) {
+  return keccak256(solidityPack(types, values));
 }
 
 bool isArray(String type) {

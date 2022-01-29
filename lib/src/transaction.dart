@@ -326,11 +326,12 @@ class Transaction {
     Uint8List msgHash = this.hash(false);
     ECDSASignature sig = signature.sign(msgHash, privateKey);
 
+    var sigv = sig.v;
     if (this._implementsEIP155()) {
-      sig.v += this.getChainId() * 2 + 8;
+      sigv += this.getChainId() * 2 + 8;
     }
 
-    this.v = toBuffer(sig.v);
+    this.v = toBuffer(sigv);
     this.s = toBuffer(sig.s);
     this.r = toBuffer(sig.r);
   }
