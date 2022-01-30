@@ -9,7 +9,7 @@ import 'package:pointycastle/pointycastle.dart';
 ///
 Uint8List keccak(dynamic a, {int bits: 256}) {
   a = bytes.toBuffer(a);
-  Digest sha3 = new Digest("SHA-3/${bits}");
+  Digest sha3 = new Digest("Keccak/${bits}");
   return sha3.process(a);
 }
 
