@@ -1,5 +1,4 @@
 import 'package:ethereum_util/src/chain.dart';
-import 'package:ethereum_util/src/transaction.dart';
 
 class HardforkOptions {
   /** optional, only allow supported HFs (default: false) */
@@ -268,12 +267,11 @@ class Common {
     HardforkOptions? opts,
   }) {
     opts = opts != null ? opts : HardforkOptions();
-    bool onlyActive = opts.onlyActive == null ? false : opts.onlyActive;
     hardfork1 = this._chooseHardfork(
         hardfork: hardfork1, onlySupported: opts.onlySupported);
 
     var hardforks;
-    if (onlyActive) {
+    if (opts.onlyActive) {
       hardforks = this.activeHardforks(opts: opts);
     } else {
       hardforks = this.hardforks();
@@ -327,8 +325,7 @@ class Common {
     var hfs = this.hardforks();
     for (var hf in hfs) {
       if (hf['block'] == null) continue;
-      if (blockNumber != null &&
-          blockNumber < hf['block']) break;
+      if (blockNumber != null && blockNumber < hf['block']) break;
       if (opts.onlySupported && !this._isSupportedHardfork(hf['name']))
         continue;
 

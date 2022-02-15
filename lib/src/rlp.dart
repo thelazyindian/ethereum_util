@@ -3,8 +3,6 @@ import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 import 'package:ethereum_util/ethereum_util.dart';
-import 'package:ethereum_util/src/utils.dart'
-    show intToBuffer, isHexString, padToEven, stripHexPrefix;
 
 //Copy and pasted from the rlp nodejs library, translated to dart on a
 //best-effort basis.
@@ -58,7 +56,7 @@ class Decoded {
 }
 
 dynamic decode(Uint8List input, [bool stream = false]) {
-  if (input == null || input.length == 0) {
+  if (input.length == 0) {
     return <dynamic>[];
   }
 

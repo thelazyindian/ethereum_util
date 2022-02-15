@@ -12,10 +12,10 @@ TypedData _$TypedDataFromJson(Map<String, dynamic> json) {
         (k, e) => MapEntry(
             k,
             (e as List)
-                ?.map((e) => e == null
+                .map((e) => e == null
                     ? null
                     : TypedDataField.fromJson(e as Map<String, dynamic>))
-                ?.toList() as List<TypedDataField>) ,
+                .toList() as List<TypedDataField>),
       ),
       primaryType: json['primaryType'] as String,
       domain: json['domain'] == null

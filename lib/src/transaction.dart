@@ -2,8 +2,6 @@ import 'dart:typed_data';
 
 import 'package:ethereum_util/ethereum_util.dart';
 import 'package:ethereum_util/src/signature.dart' as signature;
-import 'package:ethereum_util/src/common.dart';
-import 'package:ethereum_util/src/object.dart';
 
 // secp256k1n/2
 final BigInt N_DIV_2 = BigInt.parse(
@@ -181,7 +179,6 @@ class Transaction {
         break;
       default:
         throw ArgumentError("Property name $name doesn't exist");
-        break;
     }
   }
 
@@ -265,9 +262,6 @@ class Transaction {
    * returns the sender's address
    */
   Uint8List getSenderAddress() {
-    if (this._from != null) {
-      return this._from;
-    }
     Uint8List? pubkey = this.getSenderPublicKey();
     this._from = publicKeyToAddress(pubkey!);
     return this._from;
@@ -345,7 +339,7 @@ class Transaction {
   }
 
   void _validateV(Uint8List v) {
-    if (v == null || v.length == 0) {
+    if (v.length == 0) {
       return;
     }
 

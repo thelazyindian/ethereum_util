@@ -77,7 +77,7 @@ class MsgParams {
   }
 }
 
-@JsonSerializable(nullable: true)
+@JsonSerializable()
 class TypedData {
   Map<String, List<TypedDataField>>? types;
   String? primaryType;
@@ -89,11 +89,10 @@ class TypedData {
   factory TypedData.fromJson(Map<String, dynamic> json) =>
       _$TypedDataFromJson(json);
 
-  @override
   Map<String, dynamic> toJson() => _$TypedDataToJson(this);
 }
 
-@JsonSerializable(nullable: true)
+@JsonSerializable()
 class TypedDataField {
   String? name;
   String? type;
@@ -103,11 +102,10 @@ class TypedDataField {
   factory TypedDataField.fromJson(Map<String, dynamic> json) =>
       _$TypedDataFieldFromJson(json);
 
-  @override
   Map<String, dynamic> toJson() => _$TypedDataFieldToJson(this);
 }
 
-@JsonSerializable(nullable: true)
+@JsonSerializable()
 class EIP712Domain {
   String? name;
   String? version;
@@ -134,7 +132,6 @@ class EIP712Domain {
   factory EIP712Domain.fromJson(Map<String, dynamic> json) =>
       _$EIP712DomainFromJson(json);
 
-  @override
   Map<String, dynamic> toJson() => _$EIP712DomainToJson(this);
 }
 
@@ -143,8 +140,8 @@ class TypedDataUtils {
     var parts = BytesBuffer();
     parts.add(hex.decode('1901'));
     parts.add(hashStruct('EIP712Domain', typedData.domain, typedData.types!));
-    parts.add(
-        hashStruct(typedData.primaryType!, typedData.message, typedData.types!));
+    parts.add(hashStruct(
+        typedData.primaryType!, typedData.message, typedData.types!));
     return sha3(parts.toBytes());
   }
 
@@ -216,7 +213,9 @@ class TypedDataUtils {
       }
       result += dep +
           '(' +
-          types[dep]!.map((field) => field.type! + ' ' + field.name!).join(',') +
+          types[dep]!
+              .map((field) => field.type! + ' ' + field.name!)
+              .join(',') +
           ')';
     });
     return result;
