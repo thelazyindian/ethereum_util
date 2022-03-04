@@ -2,7 +2,6 @@ import 'dart:convert' show utf8;
 import 'dart:typed_data';
 
 import 'package:convert/convert.dart' show hex;
-import 'package:quiver/check.dart';
 
 bool isHexPrefixed(String str) {
   return str.substring(0, 2) == '0x';

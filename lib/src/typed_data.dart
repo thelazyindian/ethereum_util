@@ -7,7 +7,7 @@ import 'package:ethereum_util/src/abi.dart' as ethAbi;
 import 'package:ethereum_util/src/bytes.dart';
 import 'package:ethereum_util/src/signature.dart';
 import 'package:ethereum_util/src/utils.dart';
-import 'package:meta/meta.dart';
+
 import 'package:json_annotation/json_annotation.dart';
 
 part 'typed_data.g.dart';
@@ -97,7 +97,7 @@ class TypedDataField {
   String? name;
   String? type;
 
-  TypedDataField({@required this.name, @required this.type});
+  TypedDataField({required this.name, required this.type});
 
   factory TypedDataField.fromJson(Map<String, dynamic> json) =>
       _$TypedDataFieldFromJson(json);
