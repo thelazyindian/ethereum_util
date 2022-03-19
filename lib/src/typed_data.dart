@@ -162,7 +162,7 @@ class TypedDataUtils {
       throw ArgumentError("Unsupported data type");
     }
 
-    var encodedTypes = [] as List<String>;
+    var encodedTypes = <String>[];
     encodedTypes.add('bytes32');
     var encodedValues = [];
     encodedValues.add(hashType(primaryType, types));
@@ -172,20 +172,21 @@ class TypedDataUtils {
       if (value != null) {
         if (field.type == 'bytes') {
           encodedTypes.add('bytes32');
-          value = sha3(value);
-          encodedValues.add(value);
+          final result = sha3(value is String ? utf8.encode(value) : value);
+          encodedValues.add(result);
         } else if (field.type == 'string') {
           encodedTypes.add('bytes32');
           // convert string to buffer - prevents ethUtil from interpreting strings like '0xabcd' as hex
+          var val;
           if (value is String) {
-            value = Uint8List.fromList(utf8.encode(value));
+            val = Uint8List.fromList(utf8.encode(value));
           }
-          value = sha3(value);
-          encodedValues.add(value);
+          final result = sha3(val);
+          encodedValues.add(result);
         } else if (types[field.type] != null) {
           encodedTypes.add('bytes32');
-          value = sha3(encodeData(field.type!, value, types));
-          encodedValues.add(value);
+          final result = sha3(encodeData(field.type!, value, types));
+          encodedValues.add(result);
         } else if (field.type!.lastIndexOf(']') == field.type!.length - 1) {
           throw new ArgumentError(
               'Arrays currently unimplemented in encodeData');

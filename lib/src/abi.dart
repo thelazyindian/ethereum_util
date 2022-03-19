@@ -26,10 +26,10 @@ Uint8List rawEncode(List<String> types, values) {
 
   types.forEach((type) {
     if (isArray(type)) {
-      int size = parseTypeArray(type);
+      var size = parseTypeArray(type);
 
       if (size != 'dynamic') {
-        headLength += 32 * size;
+        headLength += 32 * size as int;
       } else {
         headLength += 32;
       }
